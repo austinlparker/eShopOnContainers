@@ -34,6 +34,7 @@
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
     using System.Reflection;
+    using OpenTelemetry.Trace;
 
     public class Startup
     {
@@ -49,7 +50,14 @@
         public virtual IServiceProvider ConfigureServices(IServiceCollection services)
         {
             RegisterAppInsights(services);
-
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("marketing-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             // Add framework services.
             services.AddCustomHealthCheck(Configuration);
             services

@@ -38,6 +38,7 @@
     using System.IdentityModel.Tokens.Jwt;
     using System.IO;
     using System.Reflection;
+    using OpenTelemetry.Trace;
 
     public class Startup
     {
@@ -66,7 +67,15 @@
                 .AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration);
             //configure autofac
-
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("ordering-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .AddGrpcClientInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             var container = new ContainerBuilder();
             container.Populate(services);
 

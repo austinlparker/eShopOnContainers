@@ -26,6 +26,7 @@ using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using OpenTelemetry.Trace;
 
 namespace Microsoft.eShopOnContainers.Services.Locations.API
 {
@@ -42,6 +43,14 @@ namespace Microsoft.eShopOnContainers.Services.Locations.API
         {
             RegisterAppInsights(services);
 
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("locations-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             services.AddCustomHealthCheck(Configuration);
 
             services.AddControllers(options =>

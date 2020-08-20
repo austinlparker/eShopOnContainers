@@ -1,0 +1,21 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "0.0.0.0:55680"
+processors:
+  batch:
+  queued_retry:
+exporters:
+  logging:
+  otlp:
+    endpoint: "ingest.lightstep.com:443"
+    compression: gzip
+    headers:
+      "lightstep-access-token": "TOKEN HERE"
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, queued_retry]
+      exporters: [logging, otlp]

@@ -18,6 +18,8 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using OpenTelemetry.Trace;
+using Grpc.Core;
 
 namespace Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator
 {
@@ -47,6 +49,14 @@ namespace Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator
                 .AddCustomAuthentication(Configuration)
                 .AddDevspaces()
                 .AddApplicationServices();
+            
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("web-aggregator"))
+                .AddGrpcClientInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

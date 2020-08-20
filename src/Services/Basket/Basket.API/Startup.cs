@@ -36,6 +36,7 @@ using System.IO;
 using GrpcBasket;
 using Microsoft.AspNetCore.Http.Features;
 using Serilog;
+using OpenTelemetry.Trace;
 
 namespace Microsoft.eShopOnContainers.Services.Basket.API
 {
@@ -55,6 +56,14 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             {
                 options.EnableDetailedErrors = true;
             });
+
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("basket-api"))
+                .AddGrpcClientInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+            }));
 
             RegisterAppInsights(services);
 

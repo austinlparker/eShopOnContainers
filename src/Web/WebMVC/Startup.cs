@@ -23,6 +23,7 @@ using System.Net.Http;
 using WebMVC.Infrastructure;
 using WebMVC.Infrastructure.Middlewares;
 using WebMVC.Services;
+using OpenTelemetry.Trace;
 
 namespace Microsoft.eShopOnContainers.WebMVC
 {
@@ -45,7 +46,15 @@ namespace Microsoft.eShopOnContainers.WebMVC
                 .AddCustomMvc(Configuration)
                 .AddDevspaces()
                 .AddHttpClientServices(Configuration);
-
+             services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("webmvc"))
+                .AddHttpClientInstrumentation()
+                .AddSqlClientDependencyInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             IdentityModelEventSource.ShowPII  = true;       // Caution! Do NOT use in production: https://aka.ms/IdentityModel/PII
             
             services.AddControllers();

@@ -16,6 +16,7 @@ using Payment.API.IntegrationEvents.EventHandling;
 using Payment.API.IntegrationEvents.Events;
 using RabbitMQ.Client;
 using System;
+using OpenTelemetry.Trace;
 
 namespace Payment.API
 {
@@ -35,7 +36,14 @@ namespace Payment.API
             services.Configure<PaymentSettings>(Configuration);
 
             RegisterAppInsights(services);
-
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("payment-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>

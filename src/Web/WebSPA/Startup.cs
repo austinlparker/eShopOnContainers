@@ -14,6 +14,7 @@ using StackExchange.Redis;
 using System;
 using System.IO;
 using WebSPA.Infrastructure;
+using OpenTelemetry.Trace;
 
 namespace eShopConContainers.WebSPA
 {
@@ -37,7 +38,15 @@ namespace eShopConContainers.WebSPA
         public void ConfigureServices(IServiceCollection services)
         {
             RegisterAppInsights(services);
-
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("webspa"))
+                .AddHttpClientInstrumentation()
+                .AddSqlClientDependencyInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            }));
             services.AddHealthChecks()
                 .AddCheck("self", () => HealthCheckResult.Healthy())
                 .AddUrlGroup(new Uri(Configuration["IdentityUrlHC"]), name: "identityapi-check", tags: new string[] { "identityapi" });

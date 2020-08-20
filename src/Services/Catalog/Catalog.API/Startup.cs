@@ -32,6 +32,9 @@ using System;
 using System.Data.Common;
 using System.IO;
 using System.Reflection;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
+using Grpc.Core;
 
 namespace Microsoft.eShopOnContainers.Services.Catalog.API
 {
@@ -55,6 +58,16 @@ namespace Microsoft.eShopOnContainers.Services.Catalog.API
                 .AddEventBus(Configuration)
                 .AddSwagger(Configuration)
                 .AddCustomHealthCheck(Configuration);
+
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("catalog-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .AddGrpcClientInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            })); 
 
             var container = new ContainerBuilder();
             container.Populate(services);

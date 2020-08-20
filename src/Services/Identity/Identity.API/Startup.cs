@@ -21,6 +21,7 @@ using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System;
 using System.Reflection;
+using OpenTelemetry.Trace;
 
 namespace Microsoft.eShopOnContainers.Services.Identity.API
 {
@@ -38,6 +39,15 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
         {
             RegisterAppInsights(services);
 
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("identity-api"))
+                .AddSqlClientDependencyInstrumentation()
+                .AddGrpcClientInstrumentation()
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+                
+            })); 
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(Configuration["ConnectionString"],
