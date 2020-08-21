@@ -2,7 +2,7 @@
    <img src="https://github.com/dotnet-architecture/eShopOnContainers/raw/dev/img/eshop_logo.png" alt="eShop logo" title="eShopOnContainers" align="right" height="60" />
 </a>
 
-# .NET Microservices Sample Reference Application
+# .NET Microservices Sample Reference Application (+ OpenTelemetry)
 
 Sample .NET Core reference application, powered by Microsoft, based on a simplified microservices architecture and Docker containers.
 
@@ -49,6 +49,9 @@ In the future more features will be implemented in the advanced scenario.
 
 
 ## IMPORTANT NOTES!
+
+**OpenTelemetry Integration Notes**
+The OpenTelemetry collector config is at `./src/otel-collector-config.yaml` - if you'd like to use this with Lightstep, insert your project access token at the appropriate place. You can also configure export to Jaeger, Zipkin, or many other destinations! See full Collector docs [on GitHub](https://github.com/open-telemetry/opentelemetry-collector).
 
 **You can use either the latest version of Visual Studio or simply Docker CLI and .NET CLI for Windows, Mac and Linux**.
 
