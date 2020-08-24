@@ -67,6 +67,7 @@
                 .AddEventBus(Configuration)
                 .AddCustomAuthentication(Configuration);
             //configure autofac
+            
             services.AddOpenTelemetry((builder) => 
                 builder.AddAspNetCoreInstrumentation()
                 .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("ordering-api"))

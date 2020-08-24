@@ -46,8 +46,8 @@ namespace Microsoft.eShopOnContainers.Services.Identity.API
                 .AddGrpcClientInstrumentation()
                 .UseOtlpExporter(opt => {
                     opt.Endpoint = "otel-collector:55680";
-                
             })); 
+            
             // Add framework services.
             services.AddDbContext<ApplicationDbContext>(options =>
                     options.UseSqlServer(Configuration["ConnectionString"],

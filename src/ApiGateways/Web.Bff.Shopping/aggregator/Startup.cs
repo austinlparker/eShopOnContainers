@@ -53,6 +53,7 @@ namespace Microsoft.eShopOnContainers.Web.Shopping.HttpAggregator
             services.AddOpenTelemetry((builder) => 
                 builder.AddAspNetCoreInstrumentation()
                 .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("web-aggregator"))
+                .AddHttpClientInstrumentation()
                 .AddGrpcClientInstrumentation()
                 .UseOtlpExporter(opt => {
                     opt.Endpoint = "otel-collector:55680";

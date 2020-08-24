@@ -28,6 +28,7 @@
                 .AddOptions()
                 .AddHostedService<GracePeriodManagerService>()
                 .AddEventBus(this.Configuration);
+                
         }
 
 

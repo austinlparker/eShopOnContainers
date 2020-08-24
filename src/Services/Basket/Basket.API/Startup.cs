@@ -57,15 +57,9 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
                 options.EnableDetailedErrors = true;
             });
 
-            services.AddOpenTelemetry((builder) => 
-                builder.AddAspNetCoreInstrumentation()
-                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("basket-api"))
-                .AddGrpcClientInstrumentation()
-                .UseOtlpExporter(opt => {
-                    opt.Endpoint = "otel-collector:55680";
-            }));
-
             RegisterAppInsights(services);
+
+            
 
             services.AddControllers(options =>
                 {
@@ -111,7 +105,7 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
             services.AddCustomHealthCheck(Configuration);
 
             services.Configure<BasketSettings>(Configuration);
-
+            
             //By connecting here we are making sure that our service
             //cannot start until redis is ready. This might slow down startup,
             //but given that there is a delay on resolving the ip address
@@ -125,9 +119,18 @@ namespace Microsoft.eShopOnContainers.Services.Basket.API
 
                 configuration.ResolveDns = true;
 
-                return ConnectionMultiplexer.Connect(configuration);
+                var cm = ConnectionMultiplexer.Connect(configuration);
+                return cm;
             });
 
+            services.AddOpenTelemetry((builder) => 
+                builder.AddAspNetCoreInstrumentation()
+                .SetResource(OpenTelemetry.Resources.Resources.CreateServiceResource("basket-api"))
+                .AddGrpcClientInstrumentation()
+                .AddRedisInstrumentation(services.BuildServiceProvider().GetService<ConnectionMultiplexer>())
+                .UseOtlpExporter(opt => {
+                    opt.Endpoint = "otel-collector:55680";
+            }));
 
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
